@@ -13,6 +13,9 @@ __pycache__/
 frontend/node_modules/
 frontend/dist/
 
+# Personal reference docs — not pushed to GitHub
+docs/
+
 # OS
 .DS_Store
 
