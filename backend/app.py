@@ -1,10 +1,14 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 
 from config import Config
 from models import db
+from routes.doctor import doctor_bp
+from routes.hospital import hospital_bp
+from routes.patient import patient_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -13,6 +17,11 @@ db.init_app(app)
 migrate = Migrate(app, db)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+jwt = JWTManager(app)
+
+app.register_blueprint(patient_bp)
+app.register_blueprint(doctor_bp)
+app.register_blueprint(hospital_bp)
 
 
 @app.route("/")
