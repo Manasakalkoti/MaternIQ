@@ -1,3 +1,5 @@
+import re
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -6,6 +8,8 @@ from models import db
 from models.identity import Hospital
 
 hospital_bp = Blueprint("hospital", __name__, url_prefix="/api/hospital")
+
+PINCODE_PATTERN = re.compile(r"^\d{6}$")
 
 
 @hospital_bp.route("/register", methods=["POST"])
@@ -32,6 +36,9 @@ def register():
     missing = [field for field, value in required.items() if not value]
     if missing:
         return jsonify({"error": f"missing required fields: {', '.join(missing)}"}), 400
+
+    if not PINCODE_PATTERN.match(pincode):
+        return jsonify({"error": "pincode must be exactly 6 digits"}), 400
 
     if Hospital.query.filter_by(email=email).first():
         return jsonify({"error": "an account with this email already exists"}), 409
