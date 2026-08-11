@@ -20,6 +20,11 @@ function Landing() {
           </Link>
         ))}
       </div>
+
+      {/* --- Phase 2 --- */}
+      <Link to="/doctors" className="doctor-directory-link">
+        Browse Doctors
+      </Link>
     </main>
   )
 }

@@ -29,3 +29,11 @@
 .profile-button:hover {
   opacity: 0.8;
 }
+
+/* --- Phase 2 --- */
+.doctor-directory-link {
+  margin-top: 0.5rem;
+  color: inherit;
+  text-decoration: underline;
+  font-size: 0.95rem;
+}

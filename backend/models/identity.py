@@ -10,8 +10,9 @@ class Patient(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
-    full_name = db.Column(db.String(255))
+    full_name = db.Column(db.String(255), nullable=False)
     phone = db.Column(db.String(20))
+    address = db.Column(db.String(500))
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
 
@@ -21,6 +22,7 @@ class Patient(db.Model):
     job_type = db.Column(db.String(100))
 
     is_active = db.Column(db.Boolean, default=True, nullable=False)
+    profile_completed = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
@@ -31,6 +33,14 @@ class Doctor(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
+    full_name = db.Column(db.String(255), nullable=False)
+    gender = db.Column(db.String(20))
+    qualification = db.Column(db.String(255))
+    specialization = db.Column(db.String(255))
+    hospitals_text = db.Column(db.Text)
+    hospital_timings = db.Column(db.Text)
+
+    profile_completed = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
 
@@ -46,5 +56,6 @@ class Hospital(db.Model):
     pincode = db.Column(db.String(6), nullable=False)
     area = db.Column(db.String(255), nullable=False)
     district = db.Column(db.String(255), nullable=False)
+    state = db.Column(db.String(255), nullable=False)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)

@@ -1,0 +1,25 @@
+.profile-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.profile-avatar-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: #dc2626;
+  border: 2px solid Canvas;
+}

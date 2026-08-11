@@ -1,0 +1,47 @@
+.dashboard-hub {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.dashboard-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.dashboard-areas {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  flex: 1;
+  min-width: 220px;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid currentColor;
+  text-decoration: none;
+  color: inherit;
+}
+
+.dashboard-card:hover {
+  opacity: 0.85;
+}
+
+.dashboard-card h2 {
+  margin: 0 0 0.5rem;
+}
+
+.dashboard-card p {
+  margin: 0;
+  font-size: 0.9rem;
+}

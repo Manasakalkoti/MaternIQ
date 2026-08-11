@@ -1,34 +1,12 @@
-import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { API_BASE_URL } from '../../api/config'
-import { clearAuth, getToken } from '../../api/auth'
+import { Link, useNavigate } from 'react-router-dom'
+import { clearAuth } from '../../api/auth'
+import { useProtectedProfile } from '../../api/useProtectedProfile'
+import '../../components/ProfileAvatar.css'
+import './PatientDashboard.css'
 
 function PatientDashboard() {
   const navigate = useNavigate()
-  const [patient, setPatient] = useState(null)
-  const [error, setError] = useState('')
-
-  useEffect(() => {
-    const token = getToken('patient')
-    if (!token) {
-      navigate('/patient')
-      return
-    }
-
-    fetch(`${API_BASE_URL}/api/patient/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(async (response) => {
-        const data = await response.json()
-        if (!response.ok) throw new Error(data.error || 'Session expired')
-        setPatient(data)
-      })
-      .catch((err) => {
-        setError(err.message)
-        clearAuth('patient')
-        setTimeout(() => navigate('/patient'), 1500)
-      })
-  }, [navigate])
+  const { data: patient, error } = useProtectedProfile('patient')
 
   const handleLogout = () => {
     clearAuth('patient')
@@ -39,18 +17,33 @@ function PatientDashboard() {
   if (!patient) return <p>Loading…</p>
 
   return (
-    <main style={{ maxWidth: 420, margin: '0 auto', padding: '2rem 1rem' }}>
-      <h1>Welcome, {patient.full_name || patient.email}</h1>
-      <p>This confirms the JWT-protected /me route is working.</p>
-      <ul>
-        <li>Email: {patient.email}</li>
-        <li>Phone: {patient.phone || 'Not provided'}</li>
-        <li>Age: {patient.age ?? 'Not provided'}</li>
-        <li>Trimester: {patient.trimester ?? 'Not provided'}</li>
-        <li>Due date: {patient.due_date || 'Not provided'}</li>
-        <li>Job type: {patient.job_type || 'Not provided'}</li>
-        <li>Conditions: {patient.conditions || 'None recorded'}</li>
-      </ul>
+    <main className="dashboard-hub">
+      <header className="dashboard-topbar">
+        <span className="dashboard-brand">MaternIQ</span>
+        <Link
+          to="/patient/complete-profile"
+          className="profile-avatar"
+          title={patient.profile_completed ? 'Your profile' : 'Complete your profile'}
+        >
+          {patient.full_name.charAt(0).toUpperCase()}
+          {!patient.profile_completed && <span className="profile-avatar-dot" />}
+        </Link>
+      </header>
+
+      <h1>Welcome, {patient.full_name}</h1>
+      <p>These two areas are kept separate — nothing in one affects the other.</p>
+
+      <div className="dashboard-areas">
+        <Link to="/patient/dashboard/lifestyle" className="dashboard-card">
+          <h2>Lifestyle Companion</h2>
+          <p>Your LLM-powered assistant for diet, exercise, and wellbeing guidance.</p>
+        </Link>
+        <Link to="/patient/dashboard/hospitals" className="dashboard-card">
+          <h2>Hospital Management</h2>
+          <p>Your wearable device, connected hospitals, and hospital directory.</p>
+        </Link>
+      </div>
+
       <button type="button" onClick={handleLogout}>
         Log out
       </button>

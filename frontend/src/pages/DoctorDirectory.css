@@ -1,0 +1,37 @@
+.doctor-directory {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.doctor-directory-search {
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  border: 1px solid currentColor;
+  font-size: 1rem;
+}
+
+.doctor-directory-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.doctor-directory-card {
+  border: 1px solid currentColor;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.doctor-directory-card h2 {
+  margin: 0 0 0.25rem;
+}
+
+.doctor-directory-card p {
+  margin: 0.15rem 0;
+}

@@ -1,0 +1,24 @@
+.hospital-management {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.hospital-management section {
+  padding: 1rem 0;
+  border-top: 1px solid #8884;
+}
+
+.hospital-management section:first-of-type {
+  border-top: none;
+}
+
+.hospital-management h2 {
+  margin: 0 0 0.25rem;
+}
+
+.hospital-management p {
+  margin: 0;
+  opacity: 0.75;
+  font-size: 0.9rem;
+}
