@@ -36,6 +36,7 @@ class PatientHospitalMapping(db.Model):
 
     patient_name = db.Column(db.String(255), nullable=False)
     patient_phone = db.Column(db.String(20), nullable=False)
+    patient_email = db.Column(db.String(255), nullable=False)
     patient_id = db.Column(db.Integer, db.ForeignKey("patients.patient_id"), nullable=True)
 
     access_code = db.Column(db.String(13), unique=True, nullable=False)

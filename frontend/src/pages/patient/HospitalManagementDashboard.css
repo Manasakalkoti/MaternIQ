@@ -4,21 +4,47 @@
   padding: 2rem 1rem;
 }
 
-.hospital-management section {
-  padding: 1rem 0;
-  border-top: 1px solid #8884;
+.hospital-management > a {
+  display: inline-block;
+  margin-bottom: 0.75rem;
 }
 
-.hospital-management section:first-of-type {
-  border-top: none;
+.hospital-management section {
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid #8883;
+  border-radius: 0.75rem;
 }
 
 .hospital-management h2 {
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.hospital-management h3 {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.95rem;
 }
 
 .hospital-management p {
-  margin: 0;
+  margin: 0.15rem 0;
   opacity: 0.75;
+  font-size: 0.9rem;
+}
+
+/* --- Phase 2 --- */
+.hospital-management ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hospital-management li {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #8883;
+  border-radius: 0.5rem;
   font-size: 0.9rem;
 }

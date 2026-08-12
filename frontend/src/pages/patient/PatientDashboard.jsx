@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { clearAuth } from '../../api/auth'
 import { useProtectedProfile } from '../../api/useProtectedProfile'
 import '../../components/ProfileAvatar.css'
+import '../../components/AuthForm.css'
 import './PatientDashboard.css'
 
 function PatientDashboard() {
@@ -44,7 +45,7 @@ function PatientDashboard() {
         </Link>
       </div>
 
-      <button type="button" onClick={handleLogout}>
+      <button type="button" className="btn-secondary" onClick={handleLogout}>
         Log out
       </button>
     </main>

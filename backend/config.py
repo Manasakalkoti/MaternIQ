@@ -22,3 +22,9 @@ class Config:
 
     JWT_SECRET_KEY = os.environ.get("SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+
+    # --- Phase 2 ---
+    EMAIL_HOST = os.environ.get("EMAIL_HOST")
+    EMAIL_PORT = os.environ.get("EMAIL_PORT")
+    EMAIL_USER = os.environ.get("EMAIL_USER")
+    EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")

@@ -25,7 +25,7 @@ function formatTime(value) {
 }
 
 // --- Phase 2 ---
-const EMPTY_ACCESS_CODE_FORM = { patient_name: '', patient_phone: '', hospital_doctor_id: '' }
+const EMPTY_ACCESS_CODE_FORM = { patient_name: '', patient_phone: '', patient_email: '', hospital_doctor_id: '' }
 
 function HospitalDashboard() {
   const navigate = useNavigate()
@@ -34,8 +34,7 @@ function HospitalDashboard() {
   // --- Phase 2 ---
   const [doctors, setDoctors] = useState([])
   const [doctorForm, setDoctorForm] = useState(EMPTY_DOCTOR_FORM)
-  const [startTime, setStartTime] = useState('')
-  const [endTime, setEndTime] = useState('')
+  const [timeBlocks, setTimeBlocks] = useState([{ start: '', end: '' }])
   const [selectedDays, setSelectedDays] = useState([])
   const [doctorError, setDoctorError] = useState('')
   const [doctorInfo, setDoctorInfo] = useState('')
@@ -44,6 +43,21 @@ function HospitalDashboard() {
   // --- Phase 2 ---
   const toggleDay = (day) => {
     setSelectedDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
+  }
+
+  // --- Phase 2 ---
+  const updateTimeBlock = (index, field, value) => {
+    setTimeBlocks((prev) => prev.map((block, i) => (i === index ? { ...block, [field]: value } : block)))
+  }
+
+  // --- Phase 2 ---
+  const addTimeBlock = () => {
+    setTimeBlocks((prev) => [...prev, { start: '', end: '' }])
+  }
+
+  // --- Phase 2 ---
+  const removeTimeBlock = (index) => {
+    setTimeBlocks((prev) => prev.filter((_, i) => i !== index))
   }
 
   // --- Phase 2 ---
@@ -57,8 +71,24 @@ function HospitalDashboard() {
   }
 
   // --- Phase 2 ---
+  const [patients, setPatients] = useState([])
+
+  // --- Phase 2 ---
+  const fetchPatients = () => {
+    fetch(`${API_BASE_URL}/api/hospital/patients`, {
+      headers: { Authorization: `Bearer ${getToken('hospital')}` },
+    })
+      .then((response) => response.json())
+      .then((data) => setPatients(Array.isArray(data) ? data : []))
+      .catch(() => setPatients([]))
+  }
+
+  // --- Phase 2 ---
   useEffect(() => {
-    if (hospital) fetchDoctors()
+    if (hospital) {
+      fetchDoctors()
+      fetchPatients()
+    }
   }, [hospital])
 
   // --- Phase 2 ---
@@ -68,13 +98,27 @@ function HospitalDashboard() {
   }
 
   // --- Phase 2 ---
+  const [showDoctorForm, setShowDoctorForm] = useState(false)
+
+  // --- Phase 2 ---
+  const handleDoctorCancel = () => {
+    setShowDoctorForm(false)
+    setDoctorForm(EMPTY_DOCTOR_FORM)
+    setTimeBlocks([{ start: '', end: '' }])
+    setSelectedDays([])
+    setDoctorError('')
+    setDoctorInfo('')
+  }
+
+  // --- Phase 2 ---
   const handleDoctorSubmit = async (event) => {
     event.preventDefault()
     setDoctorError('')
     setDoctorInfo('')
 
-    if (!startTime || !endTime) {
-      setDoctorError('Please select both a start and end time')
+    const validTimeBlocks = timeBlocks.filter((block) => block.start && block.end)
+    if (validTimeBlocks.length === 0) {
+      setDoctorError('Please add at least one time block with a start and end time')
       return
     }
     if (selectedDays.length === 0) {
@@ -92,7 +136,7 @@ function HospitalDashboard() {
         },
         body: JSON.stringify({
           ...doctorForm,
-          timings: `${formatTime(startTime)} - ${formatTime(endTime)}`,
+          timings: validTimeBlocks.map((block) => `${formatTime(block.start)} - ${formatTime(block.end)}`).join(', '),
           days_per_week: selectedDays.length,
           password: doctorForm.password || undefined,
         }),
@@ -105,13 +149,12 @@ function HospitalDashboard() {
       }
 
       setDoctorInfo(
-        data.generated_password
-          ? `Doctor registered. Login email: ${data.login_email} — generated password: ${data.generated_password} (share this with the doctor now, it won't be shown again).`
-          : `Doctor registered. Login email: ${data.login_email}.`
+        data.email_sent
+          ? `Doctor registered. Login credentials emailed to ${data.login_email}.`
+          : `Doctor registered, but could not email the credentials automatically. Login email: ${data.login_email}${data.generated_password ? ` — generated password: ${data.generated_password}` : ''} (share this with the doctor yourself).`
       )
       setDoctorForm(EMPTY_DOCTOR_FORM)
-      setStartTime('')
-      setEndTime('')
+      setTimeBlocks([{ start: '', end: '' }])
       setSelectedDays([])
       fetchDoctors()
     } catch {
@@ -126,6 +169,17 @@ function HospitalDashboard() {
   const [accessCodeError, setAccessCodeError] = useState('')
   const [accessCodeInfo, setAccessCodeInfo] = useState('')
   const [submittingAccessCode, setSubmittingAccessCode] = useState(false)
+
+  // --- Phase 2 ---
+  const [showAccessCodeForm, setShowAccessCodeForm] = useState(false)
+
+  // --- Phase 2 ---
+  const handleAccessCodeCancel = () => {
+    setShowAccessCodeForm(false)
+    setAccessCodeForm(EMPTY_ACCESS_CODE_FORM)
+    setAccessCodeError('')
+    setAccessCodeInfo('')
+  }
 
   // --- Phase 2 ---
   const handleAccessCodeChange = (event) => {
@@ -160,7 +214,9 @@ function HospitalDashboard() {
       }
 
       setAccessCodeInfo(
-        `Access code for ${data.patient_name}: ${data.access_code} (assigned to ${data.assigned_doctor}, expires ${new Date(data.code_expires_at).toLocaleDateString()}). Share this code with the patient now.`
+        data.email_sent
+          ? `Code sent to ${data.patient_name} (assigned to ${data.assigned_doctor}, expires ${new Date(data.code_expires_at).toLocaleDateString()}).`
+          : `Could not send the email automatically. Access code for ${data.patient_name}: ${data.access_code} (assigned to ${data.assigned_doctor}, expires ${new Date(data.code_expires_at).toLocaleDateString()}) — please share this code with the patient yourself.`
       )
       setAccessCodeForm(EMPTY_ACCESS_CODE_FORM)
     } catch {
@@ -175,6 +231,9 @@ function HospitalDashboard() {
     navigate('/')
   }
 
+  // --- Phase 2 ---
+  const assignableDoctors = doctors.filter((doctor) => doctor.is_active && doctor.unlocked)
+
   if (error) return <p>{error} — redirecting to login…</p>
   if (!hospital) return <p>Loading…</p>
 
@@ -182,7 +241,7 @@ function HospitalDashboard() {
     <main className="hospital-dashboard">
       <div className="hospital-dashboard-header">
         <h1>{hospital.name}</h1>
-        <button type="button" onClick={handleLogout}>
+        <button type="button" className="btn-secondary" onClick={handleLogout}>
           Log out
         </button>
       </div>
@@ -206,11 +265,29 @@ function HospitalDashboard() {
 
       <section>
         <h2>My Patients</h2>
-        <p>No patients connected yet. Built in Phase 2.</p>
+        {patients.length === 0 ? (
+          <p>No patients connected yet.</p>
+        ) : (
+          <ul>
+            {patients.map((patient) => (
+              <li key={patient.assignment_id}>
+                {patient.patient_name} — {patient.doctor_name} —{' '}
+                {patient.is_active ? 'active' : 'reassigned/deactivated'}
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section>
         <h2>Register New Doctor</h2>
+        {!showDoctorForm && (
+          <button type="button" className="add-button" onClick={() => setShowDoctorForm(true)}>
+            + Register Doctor
+          </button>
+        )}
+        {showDoctorForm && (
+          <>
         {doctorError && <p className="form-error">{doctorError}</p>}
         {doctorInfo && <p className="form-info">{doctorInfo}</p>}
         <form onSubmit={handleDoctorSubmit} className="auth-form">
@@ -228,17 +305,39 @@ function HospitalDashboard() {
               required
             />
           </label>
-          <label>
-            Start time
-            <input type="time" value={startTime} onChange={(event) => setStartTime(event.target.value)} required />
-          </label>
-          <label>
-            End time
-            <input type="time" value={endTime} onChange={(event) => setEndTime(event.target.value)} required />
-          </label>
-          {startTime && endTime && (
+          <label>Working hours</label>
+          {timeBlocks.map((block, index) => (
+            <div key={index} className="time-block-row">
+              <input
+                type="time"
+                value={block.start}
+                onChange={(event) => updateTimeBlock(index, 'start', event.target.value)}
+                required
+              />
+              <span>to</span>
+              <input
+                type="time"
+                value={block.end}
+                onChange={(event) => updateTimeBlock(index, 'end', event.target.value)}
+                required
+              />
+              {timeBlocks.length > 1 && (
+                <button type="button" className="time-block-remove" onClick={() => removeTimeBlock(index)}>
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          <button type="button" className="time-block-add" onClick={addTimeBlock}>
+            + Add another time block
+          </button>
+          {timeBlocks.some((block) => block.start && block.end) && (
             <p className="form-info">
-              Timings: {formatTime(startTime)} - {formatTime(endTime)}
+              Timings:{' '}
+              {timeBlocks
+                .filter((block) => block.start && block.end)
+                .map((block) => `${formatTime(block.start)} - ${formatTime(block.end)}`)
+                .join(', ')}
             </p>
           )}
           <label>Working days</label>
@@ -281,16 +380,27 @@ function HospitalDashboard() {
               onChange={handleDoctorChange}
             />
           </label>
-          <button type="submit" disabled={submittingDoctor}>
-            {submittingDoctor ? 'Please wait…' : 'Register Doctor'}
-          </button>
+          <div className="form-actions">
+            <button type="submit" disabled={submittingDoctor}>
+              {submittingDoctor ? 'Please wait…' : 'Register Doctor'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={handleDoctorCancel}>
+              Cancel
+            </button>
+          </div>
         </form>
+          </>
+        )}
       </section>
 
       <section>
         <h2>Register New Patient / Generate Access Code</h2>
-        {doctors.length === 0 ? (
-          <p>Register a doctor first before generating access codes.</p>
+        {assignableDoctors.length === 0 ? (
+          <p>No doctors available yet — register a doctor and have them unlock their account first.</p>
+        ) : !showAccessCodeForm ? (
+          <button type="button" className="add-button" onClick={() => setShowAccessCodeForm(true)}>
+            + Register Patient
+          </button>
         ) : (
           <>
             {accessCodeError && <p className="form-error">{accessCodeError}</p>}
@@ -317,6 +427,16 @@ function HospitalDashboard() {
                 />
               </label>
               <label>
+                Patient email
+                <input
+                  type="email"
+                  name="patient_email"
+                  value={accessCodeForm.patient_email}
+                  onChange={handleAccessCodeChange}
+                  required
+                />
+              </label>
+              <label>
                 Assign doctor
                 <select
                   name="hospital_doctor_id"
@@ -327,18 +447,21 @@ function HospitalDashboard() {
                   <option value="" disabled>
                     Select a doctor
                   </option>
-                  {doctors
-                    .filter((doctor) => doctor.is_active)
-                    .map((doctor) => (
-                      <option key={doctor.hospital_doctor_id} value={doctor.hospital_doctor_id}>
-                        {doctor.name} — {doctor.qualification}
-                      </option>
-                    ))}
+                  {assignableDoctors.map((doctor) => (
+                    <option key={doctor.hospital_doctor_id} value={doctor.hospital_doctor_id}>
+                      {doctor.name} — {doctor.qualification}
+                    </option>
+                  ))}
                 </select>
               </label>
-              <button type="submit" disabled={submittingAccessCode}>
-                {submittingAccessCode ? 'Please wait…' : 'Generate Access Code'}
-              </button>
+              <div className="form-actions">
+                <button type="submit" disabled={submittingAccessCode}>
+                  {submittingAccessCode ? 'Please wait…' : 'Generate Access Code'}
+                </button>
+                <button type="button" className="btn-secondary" onClick={handleAccessCodeCancel}>
+                  Cancel
+                </button>
+              </div>
             </form>
           </>
         )}

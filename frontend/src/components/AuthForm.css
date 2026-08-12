@@ -72,3 +72,21 @@
 .form-info {
   color: #16a34a;
 }
+
+/* --- Phase 2 --- */
+.add-button {
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px dashed currentColor;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  border: 1px solid #8888;
+  background: transparent;
+  cursor: pointer;
+}

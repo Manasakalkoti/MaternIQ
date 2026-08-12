@@ -52,17 +52,58 @@
   font-size: 0.9rem;
 }
 
+/* --- Phase 2 --- */
+.hospital-search-results {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.hospital-search-results li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #8883;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
 .doctor-dashboard section {
-  padding: 1rem 0;
-  border-top: 1px solid #8884;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid #8883;
+  border-radius: 0.75rem;
 }
 
 .doctor-dashboard section h2 {
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
 }
 
 .doctor-dashboard section p {
-  margin: 0;
+  margin: 0.15rem 0;
   opacity: 0.75;
+  font-size: 0.9rem;
+}
+
+/* --- Phase 2 --- */
+.doctor-dashboard ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.doctor-dashboard li {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #8883;
+  border-radius: 0.5rem;
   font-size: 0.9rem;
 }

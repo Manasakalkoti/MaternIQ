@@ -125,7 +125,7 @@ function DoctorDashboard() {
             {doctor.full_name.charAt(0).toUpperCase()}
             {!doctor.profile_completed && <span className="profile-avatar-dot" />}
           </Link>
-          <button type="button" onClick={handleLogout}>
+          <button type="button" className="btn-secondary" onClick={handleLogout}>
             Log out
           </button>
         </div>
@@ -146,7 +146,7 @@ function DoctorDashboard() {
           {matchedHospitals.map((hospital) => (
             <li key={hospital.hospital_id}>
               {hospital.name} — {hospital.area}, {hospital.district}
-              <button type="button" onClick={() => selectHospital(hospital)}>
+              <button type="button" className="btn-secondary" onClick={() => selectHospital(hospital)}>
                 Unlock
               </button>
             </li>

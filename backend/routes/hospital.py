@@ -7,8 +7,9 @@ from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, j
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from models import db
-from models.identity import Hospital
-from models.connection import HospitalDoctor, PatientHospitalMapping
+from models.identity import Hospital, Patient
+from models.connection import HospitalDoctor, PatientDoctorAssignment, PatientHospitalMapping
+from utils.email import send_access_code_email, send_doctor_credentials_email
 
 hospital_bp = Blueprint("hospital", __name__, url_prefix="/api/hospital")
 
@@ -198,13 +199,28 @@ def register_doctor():
     db.session.add(hospital_doctor)
     db.session.commit()
 
+    # --- Phase 2 ---
+    hospital = Hospital.query.get(hospital_id)
+    email_sent = True
+    try:
+        send_doctor_credentials_email(
+            to_email=login_email,
+            doctor_name=name,
+            hospital_name=hospital.name,
+            login_email=login_email,
+            password=password,
+        )
+    except Exception:
+        email_sent = False
+
     response = {
         "message": "doctor registered",
         "hospital_doctor_id": hospital_doctor.hospital_doctor_id,
         "name": hospital_doctor.name,
         "login_email": hospital_doctor.login_email,
+        "email_sent": email_sent,
     }
-    if generated_password:
+    if not email_sent and generated_password:
         response["generated_password"] = generated_password
 
     return jsonify(response), 201
@@ -263,11 +279,13 @@ def create_access_code():
 
     patient_name = data.get("patient_name")
     patient_phone = data.get("patient_phone")
+    patient_email = data.get("patient_email")
     hospital_doctor_id = data.get("hospital_doctor_id")
 
     required = {
         "patient_name": patient_name,
         "patient_phone": patient_phone,
+        "patient_email": patient_email,
         "hospital_doctor_id": hospital_doctor_id,
     }
     missing = [field for field, value in required.items() if not value]
@@ -283,6 +301,11 @@ def create_access_code():
         return jsonify({"error": "no such doctor registered at this hospital"}), 404
     if not hospital_doctor.is_active:
         return jsonify({"error": "this doctor has been deactivated"}), 400
+    # --- Phase 2 --- doctor must have unlocked (claimed) their profile before patients can be assigned to them
+    if hospital_doctor.doctor_id is None:
+        return jsonify(
+            {"error": "this doctor has not unlocked their account yet — ask them to log in and unlock it first"}
+        ), 400
 
     generated_at = datetime.utcnow()
     mapping = PatientHospitalMapping(
@@ -290,6 +313,7 @@ def create_access_code():
         hospital_doctor_id=hospital_doctor_id,
         patient_name=patient_name,
         patient_phone=patient_phone,
+        patient_email=patient_email,
         access_code=_generate_access_code(hospital.name),
         code_status="active",
         code_generated_at=generated_at,
@@ -299,6 +323,19 @@ def create_access_code():
     db.session.add(mapping)
     db.session.commit()
 
+    email_sent = True
+    try:
+        send_access_code_email(
+            to_email=patient_email,
+            patient_name=patient_name,
+            hospital_name=hospital.name,
+            doctor_name=hospital_doctor.name,
+            access_code=mapping.access_code,
+            code_expires_at=mapping.code_expires_at,
+        )
+    except Exception:
+        email_sent = False
+
     return jsonify(
         {
             "message": "access code generated",
@@ -307,5 +344,37 @@ def create_access_code():
             "patient_name": mapping.patient_name,
             "assigned_doctor": hospital_doctor.name,
             "code_expires_at": mapping.code_expires_at.isoformat(),
+            "email_sent": email_sent,
         }
     ), 201
+
+
+# --- Phase 2 ---
+@hospital_bp.route("/patients", methods=["GET"])
+@jwt_required()
+def list_patients():
+    if get_jwt().get("role") != "hospital":
+        return jsonify({"error": "this token is not authorized for a hospital account"}), 403
+
+    hospital_id = int(get_jwt_identity())
+
+    rows = (
+        db.session.query(PatientDoctorAssignment, HospitalDoctor, Patient)
+        .join(HospitalDoctor, PatientDoctorAssignment.hospital_doctor_id == HospitalDoctor.hospital_doctor_id)
+        .join(Patient, PatientDoctorAssignment.patient_id == Patient.patient_id)
+        .filter(PatientDoctorAssignment.hospital_id == hospital_id)
+        .order_by(Patient.full_name)
+        .all()
+    )
+
+    return jsonify(
+        [
+            {
+                "assignment_id": assignment.assignment_id,
+                "patient_name": patient.full_name,
+                "doctor_name": hospital_doctor.name,
+                "is_active": assignment.is_active,
+            }
+            for assignment, hospital_doctor, patient in rows
+        ]
+    ), 200
