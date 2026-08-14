@@ -164,9 +164,12 @@ def unlock_hospital():
     hospital_id = data.get("hospital_id")
     login_email = data.get("login_email")
     password = data.get("password")
+    new_password = data.get("new_password")
 
-    if not hospital_id or not login_email or not password:
-        return jsonify({"error": "hospital_id, login_email and password are required"}), 400
+    if not hospital_id or not login_email or not password or not new_password:
+        return jsonify(
+            {"error": "hospital_id, login_email, password and new_password are required"}
+        ), 400
 
     hospital = Hospital.query.get(hospital_id)
     if not hospital:
@@ -185,7 +188,11 @@ def unlock_hospital():
     if hospital_doctor.doctor_id and hospital_doctor.doctor_id != doctor_id:
         return jsonify({"error": "this hospital profile is already unlocked by another doctor account"}), 409
 
+    # --- Phase 2 ---
+    # Replace the hospital-issued password with one only the doctor knows, so the
+    # hospital staff who set/saw the original password can no longer use it.
     hospital_doctor.doctor_id = doctor_id
+    hospital_doctor.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
     db.session.commit()
 
     return jsonify(

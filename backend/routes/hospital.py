@@ -258,6 +258,89 @@ def list_doctors():
 
 
 # --- Phase 2 ---
+def _get_owned_doctor(hospital_id, hospital_doctor_id):
+    return HospitalDoctor.query.filter_by(
+        hospital_doctor_id=hospital_doctor_id, hospital_id=hospital_id
+    ).first()
+
+
+# --- Phase 2 ---
+@hospital_bp.route("/doctors/<int:hospital_doctor_id>", methods=["PATCH"])
+@jwt_required()
+def edit_doctor(hospital_doctor_id):
+    if get_jwt().get("role") != "hospital":
+        return jsonify({"error": "this token is not authorized for a hospital account"}), 403
+
+    hospital_id = int(get_jwt_identity())
+    hospital_doctor = _get_owned_doctor(hospital_id, hospital_doctor_id)
+    if not hospital_doctor:
+        return jsonify({"error": "no doctor found with this id at this hospital"}), 404
+
+    data = request.get_json(silent=True) or {}
+
+    if "employment_type" in data and data["employment_type"] not in EMPLOYMENT_TYPES:
+        return jsonify({"error": "employment_type must be 'visiting' or 'permanent'"}), 400
+
+    if "days_per_week" in data and (
+        not isinstance(data["days_per_week"], int) or not (1 <= data["days_per_week"] <= 7)
+    ):
+        return jsonify({"error": "days_per_week must be an integer between 1 and 7"}), 400
+
+    for field in ("qualification", "timings", "days_per_week", "employment_type"):
+        if field in data and data[field]:
+            setattr(hospital_doctor, field, data[field])
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "message": "doctor updated",
+            "hospital_doctor_id": hospital_doctor.hospital_doctor_id,
+            "qualification": hospital_doctor.qualification,
+            "timings": hospital_doctor.timings,
+            "days_per_week": hospital_doctor.days_per_week,
+            "employment_type": hospital_doctor.employment_type,
+        }
+    ), 200
+
+
+# --- Phase 2 ---
+@hospital_bp.route("/doctors/<int:hospital_doctor_id>/deactivate", methods=["PATCH"])
+@jwt_required()
+def deactivate_doctor(hospital_doctor_id):
+    if get_jwt().get("role") != "hospital":
+        return jsonify({"error": "this token is not authorized for a hospital account"}), 403
+
+    hospital_id = int(get_jwt_identity())
+    hospital_doctor = _get_owned_doctor(hospital_id, hospital_doctor_id)
+    if not hospital_doctor:
+        return jsonify({"error": "no doctor found with this id at this hospital"}), 404
+
+    hospital_doctor.is_active = False
+    db.session.commit()
+
+    return jsonify({"message": "doctor deactivated", "hospital_doctor_id": hospital_doctor.hospital_doctor_id}), 200
+
+
+# --- Phase 2 ---
+@hospital_bp.route("/doctors/<int:hospital_doctor_id>/reactivate", methods=["PATCH"])
+@jwt_required()
+def reactivate_doctor(hospital_doctor_id):
+    if get_jwt().get("role") != "hospital":
+        return jsonify({"error": "this token is not authorized for a hospital account"}), 403
+
+    hospital_id = int(get_jwt_identity())
+    hospital_doctor = _get_owned_doctor(hospital_id, hospital_doctor_id)
+    if not hospital_doctor:
+        return jsonify({"error": "no doctor found with this id at this hospital"}), 404
+
+    hospital_doctor.is_active = True
+    db.session.commit()
+
+    return jsonify({"message": "doctor reactivated", "hospital_doctor_id": hospital_doctor.hospital_doctor_id}), 200
+
+
+# --- Phase 2 ---
 def _generate_access_code(hospital_name):
     prefix = re.sub(r"[^A-Za-z0-9]", "", hospital_name).upper()[:8] or "HOSP"
     for _ in range(10):
@@ -372,6 +455,7 @@ def list_patients():
             {
                 "assignment_id": assignment.assignment_id,
                 "patient_name": patient.full_name,
+                "patient_phone": patient.phone,
                 "doctor_name": hospital_doctor.name,
                 "is_active": assignment.is_active,
             }

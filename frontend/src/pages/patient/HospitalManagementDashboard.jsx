@@ -14,7 +14,6 @@ function HospitalManagementDashboard() {
 
   // --- Phase 2 ---
   const [connectedHospitals, setConnectedHospitals] = useState([])
-  const [allHospitals, setAllHospitals] = useState([])
   const [redeemForm, setRedeemForm] = useState(EMPTY_REDEEM_FORM)
   const [redeemError, setRedeemError] = useState('')
   const [redeemInfo, setRedeemInfo] = useState('')
@@ -33,10 +32,6 @@ function HospitalManagementDashboard() {
   // --- Phase 2 ---
   useEffect(() => {
     fetchConnectedHospitals()
-    fetch(`${API_BASE_URL}/api/hospital/directory`)
-      .then((response) => response.json())
-      .then((data) => setAllHospitals(Array.isArray(data) ? data : []))
-      .catch(() => setAllHospitals([]))
   }, [])
 
   // --- Phase 2 ---
@@ -142,19 +137,13 @@ function HospitalManagementDashboard() {
         </form>
       </section>
 
+      {/* --- Phase 2 --- */}
       <section>
         <h2>All Registered Hospitals</h2>
-        {allHospitals.length === 0 ? (
-          <p>No hospitals registered yet.</p>
-        ) : (
-          <ul>
-            {allHospitals.map((hospital) => (
-              <li key={hospital.hospital_id}>
-                {hospital.name} — {hospital.area}, {hospital.district}, {hospital.state}
-              </li>
-            ))}
-          </ul>
-        )}
+        <p>Browse every hospital on MaternIQ and search by name, area, district, or state.</p>
+        <Link to="/patient/dashboard/hospitals/directory" className="btn-secondary">
+          Browse hospitals
+        </Link>
       </section>
     </main>
   )

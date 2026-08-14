@@ -1,96 +1,66 @@
-.hospital-dashboard {
+.dashboard-hub {
   max-width: 640px;
   margin: 0 auto;
   padding: 2rem 1rem;
 }
 
-.hospital-dashboard-header {
+.dashboard-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
 }
 
-.hospital-dashboard-header h1 {
-  margin: 0;
-  font-size: 1.35rem;
+.dashboard-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
 }
 
-.hospital-dashboard section {
+.dashboard-areas {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.dashboard-card {
+  flex: 1;
+  min-width: 220px;
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid currentColor;
+  text-decoration: none;
+  color: inherit;
+}
+
+.dashboard-card:hover {
+  opacity: 0.85;
+}
+
+.dashboard-card h2 {
+  margin: 0 0 0.5rem;
+}
+
+.dashboard-card p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* --- Phase 2 --- */
+.dashboard-hub section {
   padding: 1.25rem;
   margin-bottom: 1rem;
   border: 1px solid #8883;
   border-radius: 0.75rem;
 }
 
-.hospital-dashboard section h2 {
+.dashboard-hub section h2 {
   margin: 0 0 0.75rem;
   font-size: 1.05rem;
 }
 
-.hospital-dashboard section p {
+.dashboard-hub section p {
   margin: 0.15rem 0;
   opacity: 0.75;
   font-size: 0.9rem;
-}
-
-/* --- Phase 2 --- */
-.hospital-dashboard ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.hospital-dashboard li {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #8883;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-}
-
-/* --- Phase 2 --- */
-.day-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0.25rem 0 0.5rem;
-}
-
-.day-picker-option {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem 0.6rem;
-  border: 1px solid currentColor;
-  border-radius: 0.4rem;
-  font-size: 0.85rem;
-  cursor: pointer;
-}
-
-/* --- Phase 2 --- */
-.time-block-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.25rem 0;
-}
-
-.time-block-add {
-  width: fit-content;
-  margin: 0.25rem 0 0.5rem;
-  font-size: 0.85rem;
-}
-
-.time-block-remove {
-  font-size: 0.8rem;
-  padding: 0.2rem 0.5rem;
-}
-
-.form-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
 }

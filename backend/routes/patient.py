@@ -222,6 +222,7 @@ def connected_hospitals():
                 "doctor_name": hospital_doctor.name,
                 "qualification": hospital_doctor.qualification,
                 "is_active": assignment.is_active,
+                "doctor_is_active": hospital_doctor.is_active,
             }
             for assignment, hospital_doctor, hospital_name in rows
         ]

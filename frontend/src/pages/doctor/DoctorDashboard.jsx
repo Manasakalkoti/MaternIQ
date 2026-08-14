@@ -8,7 +8,7 @@ import '../../components/AuthForm.css'
 import './DoctorDashboard.css'
 
 // --- Phase 2 ---
-const EMPTY_UNLOCK_FORM = { login_email: '', password: '' }
+const EMPTY_UNLOCK_FORM = { login_email: '', password: '', new_password: '' }
 
 function DoctorDashboard() {
   const navigate = useNavigate()
@@ -159,7 +159,7 @@ function DoctorDashboard() {
       {selectedHospital && (
         <section>
           <h2>Unlock {selectedHospital.name}</h2>
-          <p>Enter the login email and password this hospital issued you.</p>
+          <p>Enter the login email and password this hospital issued you, then choose your own new password.</p>
           {unlockError && <p className="form-error">{unlockError}</p>}
           <form onSubmit={handleUnlockSubmit} className="auth-form">
             <label>
@@ -173,11 +173,22 @@ function DoctorDashboard() {
               />
             </label>
             <label>
-              Password
+              Hospital-issued password
               <input
                 type="password"
                 name="password"
                 value={unlockForm.password}
+                onChange={handleUnlockChange}
+                required
+              />
+            </label>
+            {/* --- Phase 2 --- */}
+            <label>
+              Choose your own new password (replaces the hospital-issued one)
+              <input
+                type="password"
+                name="new_password"
+                value={unlockForm.new_password}
                 onChange={handleUnlockChange}
                 required
               />
