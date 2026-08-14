@@ -28,3 +28,7 @@ class Config:
     EMAIL_PORT = os.environ.get("EMAIL_PORT")
     EMAIL_USER = os.environ.get("EMAIL_USER")
     EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+
+    # --- Phase 3 ---
+    MQTT_HOST = os.environ.get("MQTT_HOST", "localhost")
+    MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))

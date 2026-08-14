@@ -1,14 +1,18 @@
+import os
+
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_socketio import SocketIO
 
+import mqtt_subscriber
 from config import Config
 from models import db
 from routes.doctor import doctor_bp
 from routes.hospital import hospital_bp
 from routes.patient import patient_bp
+from routes.vitals import vitals_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -22,6 +26,13 @@ jwt = JWTManager(app)
 app.register_blueprint(patient_bp)
 app.register_blueprint(doctor_bp)
 app.register_blueprint(hospital_bp)
+app.register_blueprint(vitals_bp)
+
+# --- Phase 3 ---
+# Guarded so the Werkzeug debug reloader's watcher process doesn't also open a second
+# MQTT connection - only the actual running worker process starts the subscriber.
+if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    mqtt_subscriber.start()
 
 
 @app.route("/")
