@@ -11,7 +11,8 @@ vitals_bp = Blueprint("vitals", __name__, url_prefix="/api/patient/wearable")
 def _on_reading(patient_id, param_type, value, priority, reason):
     # Edge-layer suppression already happened before this is called - anything reaching
     # here has already been decided as worth transmitting. Publishes over MQTT to Mosquitto;
-    # Phase 3d's real handle_vital() picks it up on the backend's subscriber side.
+    # vitals_processing.handle_vital() picks it up on the backend's subscriber side and
+    # re-derives its own priority rather than trusting the one computed here.
     mqtt_publisher.publish_reading(patient_id, param_type, value, priority, reason)
 
 

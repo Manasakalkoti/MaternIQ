@@ -4,3 +4,4 @@ db = SQLAlchemy()
 
 from .identity import Patient, Doctor, Hospital  # noqa: E402,F401
 from .connection import HospitalDoctor, PatientHospitalMapping, PatientDoctorAssignment  # noqa: E402,F401
+from .vitals import VitalsHotBuffer, VitalsWarmTrend, VitalsColdLedger, AlertsLog  # noqa: E402,F401

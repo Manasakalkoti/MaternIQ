@@ -3,9 +3,8 @@
 # using a single wildcard pattern... the broker routes every patient's packets to the backend,
 # which then sorts by patient_id internally."
 #
-# For Phase 3c this only proves the wire (simulator -> Mosquitto -> backend) works end to end.
-# The real anomaly-check + three-tier DB write (Phase 3d's handle_vital()) plugs in later via
-# set_handler(), replacing the default print-based placeholder below.
+# Phase 3d's handle_vital() (see vitals_processing.py) is wired in via set_handler() from
+# app.py. The _default_handler below only fires if that wiring is ever skipped.
 import json
 import re
 

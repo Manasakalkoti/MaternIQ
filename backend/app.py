@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_socketio import SocketIO
 
 import mqtt_subscriber
+import vitals_processing
 from config import Config
 from models import db
 from routes.doctor import doctor_bp
@@ -32,6 +33,13 @@ app.register_blueprint(vitals_bp)
 # Guarded so the Werkzeug debug reloader's watcher process doesn't also open a second
 # MQTT connection - only the actual running worker process starts the subscriber.
 if not app.debug or os.environ.get("WERKZEUG_RUN_MAIN") == "true":
+    def _on_vital_message(patient_id, category, detail, payload):
+        # MQTT's network loop runs on its own thread, not a Flask request - handle_vital's
+        # db.session calls need an app context pushed manually here.
+        with app.app_context():
+            vitals_processing.handle_vital(patient_id, category, detail, payload)
+
+    mqtt_subscriber.set_handler(_on_vital_message)
     mqtt_subscriber.start()
 
 
